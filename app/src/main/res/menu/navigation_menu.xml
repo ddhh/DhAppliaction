@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_backup"
+            android:title="备份联系人信息到SD卡" />
+        <item
+            android:id="@+id/nav_load"
+            android:title="恢复联系人信息" />
+
+    </group>
+
+    <item android:title="其他">
+        <menu>
+            <item
+                android:id="@+id/nav_about"
+                android:title="关于我们"/>
+        </menu>
+    </item>
+
+</menu>

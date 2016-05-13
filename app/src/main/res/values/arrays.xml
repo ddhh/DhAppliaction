@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+   <array name="array_spinner">
+       <item>全部</item>
+       <item>来电</item>
+       <item>去电</item>
+       <item>未接</item>
+   </array>
+</resources>

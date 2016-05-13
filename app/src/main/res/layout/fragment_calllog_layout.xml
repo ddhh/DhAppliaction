@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <android.support.v7.widget.AppCompatSpinner
+        android:id="@+id/spinner_calllog"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:entries="@array/array_spinner"
+        android:padding="4dp"/>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerview_calllog"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:layout_gravity="bottom"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="bottom"
+        android:paddingTop="16dp"
+        android:gravity="center_horizontal"
+        android:textSize="30sp"
+        android:text="没有相关信息"/>
+</LinearLayout>
