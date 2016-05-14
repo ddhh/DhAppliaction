@@ -38,6 +38,7 @@ import com.dh.dhappliaction.activity.AboutActivity;
 import com.dh.dhappliaction.fragment.CallLogFragment;
 import com.dh.dhappliaction.fragment.ContactsFragment;
 import com.dh.dhappliaction.fragment.SMSFragment;
+import com.dh.dhappliaction.other.ContactInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -244,6 +245,10 @@ public class MainActivity extends AppCompatActivity {
         mTabs.setupWithViewPager(mViewpager);
     }
 
+    ContactInfo.ContactHandler infoHandler = ContactInfo.ContactHandler.getInstance();
+
+    private List<ContactInfo> infoList = new ArrayList<>();
+
     private void initDrawer() {
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, mDrawerLayout, mToolbar, R.string.app_name, R.string.action_settings);
         toggle.syncState();
@@ -257,6 +262,8 @@ public class MainActivity extends AppCompatActivity {
                             startActivity(new Intent(MainActivity.this, AboutActivity.class));
                             break;
                         case R.id.nav_backup:
+                            infoList = infoHandler.getContactInfo(MainActivity.this);
+                            infoHandler.backupContacts(MainActivity.this,infoList);
                             break;
                         case R.id.nav_load:
                             break;
