@@ -79,13 +79,13 @@ public class ContactsInfoActivity extends AppCompatActivity {
         Uri uri;
         String number = getIntent().getStringExtra(INTENT_CONTACTS_NUMBER);
         switch (view.getId()) {
-            case R.id.ib_contacts_call:
+            case R.id.info_fab:
                 intent = new Intent(Intent.ACTION_SENDTO);
                 uri = Uri.parse("smsto:" + number);
                 intent.setData(uri);
                 startActivity(intent);
                 break;
-            case R.id.info_fab:
+            case R.id.ib_contacts_call:
                 intent = new Intent(Intent.ACTION_CALL);
                 uri = Uri.parse("tel:" + number);
                 intent.setData(uri);

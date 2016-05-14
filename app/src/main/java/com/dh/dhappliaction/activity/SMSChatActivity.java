@@ -1,5 +1,6 @@
 package com.dh.dhappliaction.activity;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -74,16 +75,26 @@ public class SMSChatActivity extends AppCompatActivity {
         getData();
         setAdapter();
 
-        mRootView.getViewTreeObserver().addOnGlobalLayoutListener(
-                new ViewTreeObserver.OnGlobalLayoutListener() {
-                    @Override
-                    public void onGlobalLayout() {
-                        mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
-                    }
-                }
-        );
+//        mRootView.getViewTreeObserver().addOnGlobalLayoutListener(
+//                new ViewTreeObserver.OnGlobalLayoutListener() {
+//                    @Override
+//                    public void onGlobalLayout() {
+//                        mRecyclerView.scrollToPosition(mAdapter.getItemCount() - 1);
+//                    }
+//                }
+//        );
         setSmsChatObserver();
     }
+
+    Handler smooothHandler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if(msg.what==2){
+                mRecyclerView.smoothScrollToPosition(mList.size());
+            }
+        }
+    };
 
     private void setSmsChatObserver(){
         SmsChatObserver observer = new SmsChatObserver(this,new Handler(){
@@ -94,10 +105,11 @@ public class SMSChatActivity extends AppCompatActivity {
                     SMSChatBean scb = (SMSChatBean) msg.obj;
                     mList.add(scb);
                     mAdapter.notifyDataSetChanged();
+                    smooothHandler.sendEmptyMessage(2);
                 }
             }
         },thread_id);
-        Uri uri = Uri.parse(OperateSmsUtil.SMS_URI_ALL);
+        Uri uri = Uri.parse(OperateSmsUtil.SMS_URI_INBOX);
         this.getContentResolver().registerContentObserver(uri,true,observer);
     }
 
@@ -168,7 +180,10 @@ public class SMSChatActivity extends AppCompatActivity {
                 setResult();
                 return true;
             case R.id.action_call:
-                Toast.makeText(this, "拨号", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(Intent.ACTION_CALL);
+                Uri uri = Uri.parse("tel:"+number);
+                intent.setData(uri);
+                startActivity(intent);
                 return true;
         }
         return super.onOptionsItemSelected(item);

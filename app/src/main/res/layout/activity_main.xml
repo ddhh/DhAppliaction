@@ -27,7 +27,6 @@
             <EditText
                 android:id="@+id/et_phone_number"
                 android:inputType="phone"
-                android:hint="15613536507"
                 android:textSize="24sp"
                 android:visibility="gone"
                 android:paddingLeft="@dimen/activity_horizontal_margin"

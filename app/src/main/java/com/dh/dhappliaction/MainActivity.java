@@ -20,6 +20,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
@@ -132,6 +133,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initEditText() {
+        mEditText.setInputType(InputType.TYPE_NULL);
         mEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -432,6 +434,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             mToolbar.setVisibility(View.VISIBLE);
             mTabs.setVisibility(View.VISIBLE);
+            mEditText.setText("");
             mEditText.setVisibility(View.GONE);
         }
     }

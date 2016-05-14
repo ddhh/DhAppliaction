@@ -14,15 +14,15 @@ import android.widget.Toast;
  */
 public class ReceiverAndSendSms {
 
-    public static String SENT_SMS_ACTION = "SENT_SMS_ACTION";
+    public static String SEND_SMS_ACTION = "SEND_SMS_ACTION";
     public static String DELIVERED_SMS_ACTION = "DELIVERED_SMS_ACTION";
 
     private static boolean isRegister = false;
 
     public static void senTSms(Context context,String phoneNumber,String msg) {
-        Intent sendIntent = new Intent(SENT_SMS_ACTION);
+        Intent sendIntent = new Intent(SEND_SMS_ACTION);
         PendingIntent sentPI = PendingIntent.getBroadcast(context, 0, sendIntent, 0);
-        context.registerReceiver(sentBroadcastReceiver,new IntentFilter(SENT_SMS_ACTION));
+        context.registerReceiver(sendBroadcastReceiver,new IntentFilter(SEND_SMS_ACTION));
 
         Intent deliverIntent = new Intent(DELIVERED_SMS_ACTION);
         PendingIntent deliverPI = PendingIntent.getBroadcast(context, 0, deliverIntent, 0);
@@ -35,7 +35,7 @@ public class ReceiverAndSendSms {
 
     }
 
-    private static BroadcastReceiver sentBroadcastReceiver = new BroadcastReceiver() {
+    private static BroadcastReceiver sendBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             switch (getResultCode()) {
@@ -66,7 +66,7 @@ public class ReceiverAndSendSms {
     public static void unRegisterReceiver(Context context){
         if(isRegister) {
             context.unregisterReceiver(deliverBroadcastReceiver);
-            context.unregisterReceiver(sentBroadcastReceiver);
+            context.unregisterReceiver(sendBroadcastReceiver);
             isRegister = false;
         }
     }
