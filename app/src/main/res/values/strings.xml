@@ -1,7 +1,10 @@
 <resources>
-    <string name="app_name">DhAppliaction</string>
-    <string name="action_settings">Settings</string>
+    <string name="app_name">简易通讯录</string>
+    <string name="action_settings">设置</string>
     <string name="action_call">拨号</string>
+
+    <string name="login_register_link">没有帐号？ <a href="#" mce_href="#">注册</a></string>
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_scrolling">ScrollingActivity</string>

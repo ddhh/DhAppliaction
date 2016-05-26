@@ -25,6 +25,14 @@ public class ContactsRecyclerViewAdapter extends RecyclerView.Adapter implements
         this.list = list;
     }
 
+    public List<ContactsBean> getList() {
+        return list;
+    }
+
+    public void setList(List<ContactsBean> list) {
+        this.list = list;
+    }
+
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_contacts,parent,false);

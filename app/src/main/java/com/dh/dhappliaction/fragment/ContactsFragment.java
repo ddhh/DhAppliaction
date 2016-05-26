@@ -199,4 +199,10 @@ public class ContactsFragment extends Fragment{
         getActivity().getContentResolver().registerContentObserver(uri,true,observer);
     }
 
+    public void updateData(){
+        getData();
+        mAdapter.setList(mList);
+        mAdapter.notifyDataSetChanged();
+    }
+
 }

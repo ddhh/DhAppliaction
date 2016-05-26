@@ -32,6 +32,7 @@ import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.CommonDataKinds.StructuredName;
 import android.provider.ContactsContract.RawContacts;
 import android.provider.ContactsContract.RawContacts.Data;
+import android.support.design.widget.Snackbar;
 import android.widget.Toast;
 
 
@@ -210,8 +211,9 @@ public class ContactInfo {
         /**
          * 备份联系人
          */
-        public void backupContacts(Activity context, List<ContactInfo> infos){
+        public String backupContacts(Activity context, List<ContactInfo> infos){
 
+            String result = "";
             try {
 
                 String path = Environment.getExternalStorageDirectory() + "/contacts.vcf";
@@ -241,6 +243,8 @@ public class ContactInfo {
                     }
                     String vcardString = composer.createVCard(contact,
                             VCardComposer.VERSION_VCARD30_INT);
+                    result += vcardString;
+                    result += "\n";
                     writer.write(vcardString);
                     writer.write("\n");
 
@@ -258,7 +262,7 @@ public class ContactInfo {
                 e.printStackTrace();
             }
 
-            Toast.makeText(context, "备份成功！", Toast.LENGTH_SHORT).show();
+            return result;
         }
 
 
@@ -326,6 +330,57 @@ public class ContactInfo {
 
             return contactInfoList;
         }
+
+        public List<ContactInfo> restoreContacts(String vcardString) throws Exception {
+            List<ContactInfo> contactInfoList = new ArrayList<ContactInfo>();
+
+            VCardParser parse = new VCardParser();
+            VDataBuilder builder = new VDataBuilder();
+            boolean parsed = parse.parse(vcardString, "UTF-8", builder);
+
+            if(!parsed){
+                throw new VCardException("恢复数据错误 ");
+            }
+
+            List<VNode> pimContacts = builder.vNodeList;
+
+            for (VNode contact : pimContacts) {
+
+                ContactStruct contactStruct=ContactStruct.constructContactFromVNode(contact, 1);
+                // 获取备份文件中的联系人电话信息
+                List<PhoneData> phoneDataList = contactStruct.phoneList;
+                List<ContactInfo.PhoneInfo> phoneInfoList = new ArrayList<ContactInfo.PhoneInfo>();
+                for(PhoneData phoneData : phoneDataList){
+                    ContactInfo.PhoneInfo phoneInfo = new ContactInfo.PhoneInfo();
+                    phoneInfo.number=phoneData.data;
+                    phoneInfo.type=phoneData.type;
+                    phoneInfoList.add(phoneInfo);
+                }
+
+                // 获取备份文件中的联系人邮箱信息
+                List<ContactMethod> emailList = contactStruct.contactmethodList;
+                List<ContactInfo.EmailInfo> emailInfoList = new ArrayList<ContactInfo.EmailInfo>();
+                // 存在 Email 信息
+                if (null!=emailList)
+                {
+                    for (ContactMethod contactMethod : emailList)
+                    {
+                        if (Contacts.KIND_EMAIL == contactMethod.kind)
+                        {
+                            ContactInfo.EmailInfo emailInfo = new ContactInfo.EmailInfo();
+                            emailInfo.email = contactMethod.data;
+                            emailInfo.type = contactMethod.type;
+                            emailInfoList.add(emailInfo);
+                        }
+                    }
+                }
+                ContactInfo info = new ContactInfo(contactStruct.name).setPhoneList(phoneInfoList).setEmail(emailInfoList);
+                contactInfoList.add(info);
+            }
+
+            return contactInfoList;
+        }
+
 
 
         /**

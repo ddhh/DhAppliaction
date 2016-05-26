@@ -2,12 +2,15 @@ package com.dh.dhappliaction;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -23,22 +26,25 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.dh.dhappliaction.activity.AboutActivity;
+import com.dh.dhappliaction.activity.InfoActivity;
+import com.dh.dhappliaction.activity.LoginActivity;
+import com.dh.dhappliaction.bean.BaseBean;
 import com.dh.dhappliaction.fragment.CallLogFragment;
 import com.dh.dhappliaction.fragment.ContactsFragment;
 import com.dh.dhappliaction.fragment.SMSFragment;
 import com.dh.dhappliaction.other.ContactInfo;
+import com.dh.dhappliaction.util.HttpUtil;
+import com.dh.dhappliaction.util.SharedPreferencesUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -111,7 +117,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         initToolbar();
@@ -129,6 +134,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setTitle("我的通讯录");
 
     }
@@ -179,6 +185,7 @@ public class MainActivity extends AppCompatActivity {
         fragmentList.add(new SMSFragment());
         setAdapter();
         mViewpager.setOffscreenPageLimit(2);
+        mViewpager.setCurrentItem(1);
         mViewpager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -249,23 +256,46 @@ public class MainActivity extends AppCompatActivity {
 
     private List<ContactInfo> infoList = new ArrayList<>();
 
+    ActionBarDrawerToggle toggle;
     private void initDrawer() {
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, mDrawerLayout, mToolbar, R.string.app_name, R.string.action_settings);
+        toggle = new ActionBarDrawerToggle(this, mDrawerLayout, mToolbar, R.string.app_name, R.string.action_settings);
         toggle.syncState();
+        MenuItem menuItem = mNavigation.getMenu().findItem(R.id.nav_login);
+        if (!SharedPreferencesUtil.getUser(this).equals("")) {
+            menuItem.setTitle(SharedPreferencesUtil.getUser(this));
+        }
         if (mNavigation != null) {
+            mNavigation.getMenu().add(null);
             mNavigation.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
                 @Override
                 public boolean onNavigationItemSelected(MenuItem menuItem) {
                     mDrawerLayout.closeDrawers();
-                    switch (menuItem.getItemId()){
+                    switch (menuItem.getItemId()) {
                         case R.id.nav_about:
                             startActivity(new Intent(MainActivity.this, AboutActivity.class));
                             break;
-                        case R.id.nav_backup:
-                            infoList = infoHandler.getContactInfo(MainActivity.this);
-                            infoHandler.backupContacts(MainActivity.this,infoList);
+                        case R.id.nav_login:
+                            if (SharedPreferencesUtil.getUser_id(MainActivity.this).equals("")) {
+                                //TODO 跳转到登录界面
+                                startActivityForResult(new Intent(MainActivity.this, LoginActivity.class),1);
+                            } else {
+                                //TODO 跳转到个人中心
+                                startActivityForResult(new Intent(MainActivity.this, InfoActivity.class),1);
+                            }
                             break;
-                        case R.id.nav_load:
+                        case R.id.nav_synchronize:
+                            if(SharedPreferencesUtil.getUser_id(MainActivity.this).equals("")){
+                                Toast.makeText(MainActivity.this,"先登录后执行此操作",Toast.LENGTH_SHORT).show();
+                                //TODO 跳转到登录界面
+                                startActivityForResult(new Intent(MainActivity.this, LoginActivity.class),1);
+                                return true;
+                            }
+                            if(true){
+                                new SyncTask().execute();
+                            }else{
+                                new ReloadTask().execute();
+                            }
+
                             break;
                     }
                     return true;
@@ -273,6 +303,81 @@ public class MainActivity extends AppCompatActivity {
             });
         }
     }
+
+    class ReloadTask extends AsyncTask<Void, Void, Boolean> {
+
+        ProgressDialog progressDialog;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog = ProgressDialog.show(MainActivity.this, "同步中", "请稍等...", true, false);
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            String vCardStr = HttpUtil.reload(SharedPreferencesUtil.getUser_id(MainActivity.this));
+            try {
+                infoList = infoHandler.restoreContacts(vCardStr);
+                if(infoList.size()<=0){
+                    return false;
+                }
+                for (ContactInfo c:infoList){
+                    infoHandler.addContacts(MainActivity.this,c);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+            return true;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean b) {
+            super.onPostExecute(b);
+            if (b) {
+                ContactsFragment cf = (ContactsFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.viewpager + ":0");
+                if(cf!=null){
+                    cf.updateData();
+                }
+                Toast.makeText(MainActivity.this, "同步成功", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(MainActivity.this, "同步成失败", Toast.LENGTH_SHORT).show();
+            }
+            progressDialog.dismiss();
+        }
+    }
+
+
+    class SyncTask extends AsyncTask<Void, Void, BaseBean> {
+
+        ProgressDialog progressDialog;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog = ProgressDialog.show(MainActivity.this, "同步中", "请稍等...", true, false);
+        }
+
+        @Override
+        protected BaseBean doInBackground(Void... params) {
+            String syncStr = infoHandler.backupContacts(MainActivity.this, infoHandler.getContactInfo(MainActivity.this));
+            BaseBean bb = HttpUtil.sync(SharedPreferencesUtil.getUser_id(MainActivity.this), syncStr);
+            return bb;
+        }
+
+        @Override
+        protected void onPostExecute(BaseBean bb) {
+            super.onPostExecute(bb);
+            if (bb.getCode() == 1) {
+                Toast.makeText(MainActivity.this, "同步成功", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(MainActivity.this, "同步成失败", Toast.LENGTH_SHORT).show();
+            }
+            progressDialog.dismiss();
+        }
+    }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -298,14 +403,14 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if(keyCode==KeyEvent.KEYCODE_BACK){
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
             showExitDialog();
             return true;
         }
         return super.onKeyDown(keyCode, event);
     }
 
-    private void showExitDialog(){
+    private void showExitDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("提示");
         builder.setMessage("确定退出吗？");
@@ -363,12 +468,17 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d("MainActivity", "onActivityResult");
+
         switch (resultCode) {
-            case RESULT_UPDATE_SMS:
-          //      Fragment f = getSupportFragmentManager().getFragments().get(2);
-          //      f.onActivityResult(requestCode, resultCode, data);
+            case 1:
+                mNavigation.getMenu().findItem(R.id.nav_login).setTitle(SharedPreferencesUtil.getUser(this));
+                break;
+            case 2:
+                mNavigation.getMenu().findItem(R.id.nav_login).setTitle("登录");
+                break;
         }
+
+        mNavigation.getMenu().add(null);
     }
 
     @OnClick({R.id.dial_num_1, R.id.dial_num_2, R.id.dial_num_3, R.id.dial_num_4, R.id.dial_num_5, R.id.dial_num_6, R.id.dial_num_7, R.id.dial_num_8, R.id.dial_num_9, R.id.dial_num_star, R.id.dial_num_0, R.id.dial_num_hash, R.id.dial_call, R.id.dial_delete})
@@ -446,4 +556,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        SharedPreferencesUtil.editor(this,"","");
+    }
 }
