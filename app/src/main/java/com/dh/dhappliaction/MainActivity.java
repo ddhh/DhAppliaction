@@ -185,7 +185,6 @@ public class MainActivity extends AppCompatActivity {
         fragmentList.add(new SMSFragment());
         setAdapter();
         mViewpager.setOffscreenPageLimit(2);
-        mViewpager.setCurrentItem(1);
         mViewpager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -277,10 +276,10 @@ public class MainActivity extends AppCompatActivity {
                         case R.id.nav_login:
                             if (SharedPreferencesUtil.getUser_id(MainActivity.this).equals("")) {
                                 //TODO 跳转到登录界面
-                                startActivityForResult(new Intent(MainActivity.this, LoginActivity.class),1);
+                                startActivityForResult(new Intent(MainActivity.this, LoginActivity.class),2);
                             } else {
                                 //TODO 跳转到个人中心
-                                startActivityForResult(new Intent(MainActivity.this, InfoActivity.class),1);
+                                startActivityForResult(new Intent(MainActivity.this, InfoActivity.class),2);
                             }
                             break;
                         case R.id.nav_synchronize:
@@ -336,13 +335,13 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(Boolean b) {
             super.onPostExecute(b);
             if (b) {
-                ContactsFragment cf = (ContactsFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.viewpager + ":0");
+                ContactsFragment cf = (ContactsFragment) (getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.viewpager + ":1"));
                 if(cf!=null){
                     cf.updateData();
                 }
                 Toast.makeText(MainActivity.this, "同步成功", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(MainActivity.this, "同步成失败", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "同步失败", Toast.LENGTH_SHORT).show();
             }
             progressDialog.dismiss();
         }
@@ -372,7 +371,7 @@ public class MainActivity extends AppCompatActivity {
             if (bb.getCode() == 1) {
                 Toast.makeText(MainActivity.this, "同步成功", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(MainActivity.this, "同步成失败", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "同步失败", Toast.LENGTH_SHORT).show();
             }
             progressDialog.dismiss();
         }
@@ -456,7 +455,7 @@ public class MainActivity extends AppCompatActivity {
                 intent.setType("vnd.android.cursor.dir/person");
                 intent.setType("vnd.android.cursor.dir/contact");
                 intent.setType("vnd.android.cursor.dir/raw_contact");
-                startActivity(intent);
+                startActivityForResult(intent,1);
                 break;
             case 2:
                 Uri uri = Uri.parse("smsto:");
@@ -469,16 +468,24 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        switch (resultCode) {
-            case 1:
-                mNavigation.getMenu().findItem(R.id.nav_login).setTitle(SharedPreferencesUtil.getUser(this));
-                break;
-            case 2:
-                mNavigation.getMenu().findItem(R.id.nav_login).setTitle("登录");
-                break;
-        }
+        if(requestCode==2) {
+            switch (resultCode) {
+                case 1:
+                    mNavigation.getMenu().findItem(R.id.nav_login).setTitle(SharedPreferencesUtil.getUser(this));
+                    new ReloadTask().execute();
+                    break;
+                case 2:
+                    mNavigation.getMenu().findItem(R.id.nav_login).setTitle("登录");
+                    break;
+            }
+            mNavigation.getMenu().add(null);
+        }else if(requestCode==1){
 
-        mNavigation.getMenu().add(null);
+            ContactsFragment cf = (ContactsFragment) (getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.viewpager + ":1"));
+            if(cf!=null){
+                cf.updateData();
+            }
+        }
     }
 
     @OnClick({R.id.dial_num_1, R.id.dial_num_2, R.id.dial_num_3, R.id.dial_num_4, R.id.dial_num_5, R.id.dial_num_6, R.id.dial_num_7, R.id.dial_num_8, R.id.dial_num_9, R.id.dial_num_star, R.id.dial_num_0, R.id.dial_num_hash, R.id.dial_call, R.id.dial_delete})

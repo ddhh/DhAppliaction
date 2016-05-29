@@ -157,6 +157,7 @@ public class ContactsFragment extends Fragment{
 
     private void deleteInfo(int position){
         mList.remove(position);
+        mAdapter.setList(mList);
         mAdapter.notifyDataSetChanged();
     }
     private void showEnsureDialog(final int position){
@@ -191,6 +192,7 @@ public class ContactsFragment extends Fragment{
                 super.handleMessage(msg);
                 if(msg.what==1){
                     mList = (List<ContactsBean>) msg.obj;
+                    mAdapter.setList(mList);
                     mAdapter.notifyDataSetChanged();
                 }
             }

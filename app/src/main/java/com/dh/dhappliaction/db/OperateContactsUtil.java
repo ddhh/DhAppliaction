@@ -31,6 +31,7 @@ public class OperateContactsUtil {
         if (cursor.getCount() > 0) {
             while (cursor.moveToNext()) {
                 ContactsBean cb = new ContactsBean();
+                String _id = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone._ID));
                 String name = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
                 String number = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
                 String firstLetter = PinYinUtil.getPinyinOfHanyu(name)
@@ -40,6 +41,7 @@ public class OperateContactsUtil {
                 } else {
                     cb.setFirstLetter("#");
                 }
+                cb.set_id(_id);
                 cb.setName(name);
                 cb.setNumber(number);
                 list.add(cb);

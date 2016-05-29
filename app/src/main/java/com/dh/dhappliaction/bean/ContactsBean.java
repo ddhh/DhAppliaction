@@ -5,15 +5,25 @@ package com.dh.dhappliaction.bean;
  */
 public class ContactsBean {
 
+    private String _id;
     private String firstLetter;
     private String name;
     private String number;
 
     public ContactsBean(){}
 
-    public ContactsBean(String firstLetter, String name) {
+    public ContactsBean(String _id,String firstLetter, String name) {
+        this._id = _id;
         this.firstLetter = firstLetter;
         this.name = name;
+    }
+
+    public String get_id() {
+        return _id;
+    }
+
+    public void set_id(String _id) {
+        this._id = _id;
     }
 
     public String getFirstLetter() {
@@ -43,7 +53,8 @@ public class ContactsBean {
     @Override
     public String toString() {
         return "ContactsBean{" +
-                "firstLetter='" + firstLetter + '\'' +
+                "_id='" + _id + '\'' +
+                ", firstLetter='" + firstLetter + '\'' +
                 ", name='" + name + '\'' +
                 ", number='" + number + '\'' +
                 '}';
