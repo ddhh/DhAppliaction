@@ -23,7 +23,8 @@
                 android:id="@+id/tabs"
                 android:visibility="visible"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:fillViewport="false" />
             <EditText
                 android:id="@+id/et_phone_number"
                 android:inputType="phone"

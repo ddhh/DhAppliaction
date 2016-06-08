@@ -236,10 +236,12 @@ public class CallLogFragment extends Fragment {
                 super.handleMessage(msg);
                 if(msg.what==1){
                     CallLogBean cb = (CallLogBean) msg.obj;
+                    Log.d("cb",cb.toString());
                     if(mList.contains(cb)){
                         mList.remove(cb);
                         mList.add(0,cb);
                     }
+                    mAdapter.setList(mList);
                     mAdapter.notifyDataSetChanged();
                 }
             }

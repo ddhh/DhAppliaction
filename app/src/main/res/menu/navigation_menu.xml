@@ -10,9 +10,13 @@
                     android:icon="@drawable/ic_account_circle_grey_50_24dp"
                     android:title="登录" />
                 <item
-                    android:id="@+id/nav_synchronize"
+                    android:id="@+id/nav_reload"
                     android:icon="@drawable/ic_autorenew_grey_50_24dp"
                     android:title="同步联系人" />
+                <item
+                    android:id="@+id/nav_synchronize"
+                    android:icon="@drawable/ic_autorenew_grey_50_24dp"
+                    android:title="备份联系人" />
             </group>
         </menu>
     </item>

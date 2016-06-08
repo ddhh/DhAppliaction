@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.dh.dhappliaction.R;
 import com.dh.dhappliaction.bean.ContactsBean;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,7 +19,7 @@ import java.util.List;
  */
 public class ContactsRecyclerViewAdapter extends RecyclerView.Adapter implements SectionIndexer {
 
-    private List<ContactsBean> list;
+    private List<ContactsBean> list = new ArrayList<>();
     private onItemClickListener listener;
 
     public ContactsRecyclerViewAdapter(List<ContactsBean> list) {

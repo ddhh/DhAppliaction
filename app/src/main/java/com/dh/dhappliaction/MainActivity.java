@@ -289,12 +289,16 @@ public class MainActivity extends AppCompatActivity {
                                 startActivityForResult(new Intent(MainActivity.this, LoginActivity.class),1);
                                 return true;
                             }
-                            if(true){
-                                new SyncTask().execute();
-                            }else{
-                                new ReloadTask().execute();
+                            new SyncTask().execute();
+                            break;
+                        case R.id.nav_reload:
+                            if(SharedPreferencesUtil.getUser_id(MainActivity.this).equals("")){
+                                Toast.makeText(MainActivity.this,"先登录后执行此操作",Toast.LENGTH_SHORT).show();
+                                //TODO 跳转到登录界面
+                                startActivityForResult(new Intent(MainActivity.this, LoginActivity.class),1);
+                                return true;
                             }
-
+                            new ReloadTask().execute();
                             break;
                     }
                     return true;
@@ -355,7 +359,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            progressDialog = ProgressDialog.show(MainActivity.this, "同步中", "请稍等...", true, false);
+            progressDialog = ProgressDialog.show(MainActivity.this, "备份中", "请稍等...", true, false);
         }
 
         @Override
@@ -369,9 +373,9 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(BaseBean bb) {
             super.onPostExecute(bb);
             if (bb.getCode() == 1) {
-                Toast.makeText(MainActivity.this, "同步成功", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "备份成功", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(MainActivity.this, "同步失败", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "备份失败", Toast.LENGTH_SHORT).show();
             }
             progressDialog.dismiss();
         }
@@ -472,7 +476,6 @@ public class MainActivity extends AppCompatActivity {
             switch (resultCode) {
                 case 1:
                     mNavigation.getMenu().findItem(R.id.nav_login).setTitle(SharedPreferencesUtil.getUser(this));
-                    new ReloadTask().execute();
                     break;
                 case 2:
                     mNavigation.getMenu().findItem(R.id.nav_login).setTitle("登录");

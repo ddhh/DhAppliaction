@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.dh.dhappliaction.R;
 import com.dh.dhappliaction.bean.CallLogBean;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,13 +24,23 @@ import java.util.List;
  */
 public class CallLogRecyclerViewAdapter extends RecyclerView.Adapter{
 
-    private List<CallLogBean> list;
+    private List<CallLogBean> list = new ArrayList<>();
 
     private onItemClickListener listener;
+
+    public List<CallLogBean> getList() {
+        return list;
+    }
+
+    public void setList(List<CallLogBean> list) {
+        this.list = list;
+    }
 
     public CallLogRecyclerViewAdapter(List<CallLogBean> list) {
         this.list = list;
     }
+
+
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {

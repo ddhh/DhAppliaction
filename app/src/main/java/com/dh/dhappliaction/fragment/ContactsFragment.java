@@ -186,23 +186,27 @@ public class ContactsFragment extends Fragment{
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ContactsObserver observer = new ContactsObserver(getActivity(),new Handler(){
-            @Override
-            public void handleMessage(Message msg) {
-                super.handleMessage(msg);
-                if(msg.what==1){
-                    mList = (List<ContactsBean>) msg.obj;
-                    mAdapter.setList(mList);
-                    mAdapter.notifyDataSetChanged();
-                }
-            }
-        });
-        Uri uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
-        getActivity().getContentResolver().registerContentObserver(uri,true,observer);
+//        ContactsObserver observer = new ContactsObserver(getActivity(),new Handler(){
+//            @Override
+//            public void handleMessage(Message msg) {
+//                super.handleMessage(msg);
+//                if(msg.what==1){
+//                    mList = (List<ContactsBean>) msg.obj;
+//                    mAdapter.setList(mList);
+//                    mAdapter.notifyDataSetChanged();
+//                }
+//            }
+//        });
+//        Uri uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
+//        getActivity().getContentResolver().registerContentObserver(uri,true,observer);
     }
 
     public void updateData(){
         getData();
+        if(mRecyclerView.getVisibility()==View.GONE){
+            setAdapter();
+            return;
+        }
         mAdapter.setList(mList);
         mAdapter.notifyDataSetChanged();
     }
